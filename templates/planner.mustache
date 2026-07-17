@@ -1,0 +1,557 @@
+{{!
+    This file is part of Moodle - https://moodle.org/
+
+    Moodle is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    Moodle is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
+}}
+{{!
+    @template plugintype_pluginname/template_name
+
+    Template purpose and description.
+
+    Classes required for JS:
+    * none
+
+    Data attributes required for JS:
+    * none
+
+    Context variables required for this template:
+    * none
+
+    Example context (json):
+    {
+    }
+}}
+
+<!-- mod_biblereader/planner -->
+<style>
+
+.secondary-navigation {
+  display: none;
+}
+
+.biblereader {
+  user-select: none;
+  /* max-width: 500px; */
+  margin: 0 auto;
+}
+
+.instructions {
+  text-align: center;
+  margin: 0 auto;
+}
+
+.biblereader .heading {
+  color: white;
+  background-color: var(--red);
+  font-family: Oswald;
+  font-size: 7rem;
+  font-weight: bold;
+  line-height: 1.025em;
+  text-transform: uppercase;
+  width: 100%;
+  margin: 0 auto;
+  word-spacing: 9999rem;
+  padding: 2rem;
+  text-align: center;
+}
+
+.toggleContainer {
+   position: relative;
+   display: grid;
+   grid-template-columns: repeat(2, 1fr);
+   width: fit-content;
+   border: 5px solid #ddd;
+   border-radius: 6px;
+   background: #ddd;
+   font-weight: bold;
+   /* color: #ddd; */
+   cursor: pointer;
+   width: 100%;
+   text-transform: uppercase;
+   font-family: Oswald;
+   font-weight: bold;
+   font-size: x-large;
+   margin-bottom: 2rem;
+ }
+ .toggleContainer span {
+   color: var(--gold);
+   font-weight: bold;
+   font-size: smaller;
+ }
+ .toggleContainer::before {
+   content: '';
+   position: absolute;
+   width: 50%;
+   height: 100%;
+   left: 0%;
+   border-radius: 6px;
+   background: white;
+   transition: all 0.3s;
+ }
+ .toggleCheckbox:checked + .toggleContainer::before {
+    left: 50%;
+ }
+ .toggleContainer div {
+   padding: 6px;
+   text-align: center;
+   z-index: 1;
+ }
+ .toggleCheckbox {
+   display: none;
+ }
+ .toggleCheckbox:checked + .toggleContainer div:first-child{
+   /* color: white; */
+   transition: color 0.3s;
+ }
+ .toggleCheckbox:checked + .toggleContainer div:last-child{
+   /* color: #ddd; */
+   transition: color 0.3s;
+ }
+ .toggleCheckbox + .toggleContainer div:first-child{
+   /* color: #ddd; */
+   transition: color 0.3s;
+ }
+ .toggleCheckbox + .toggleContainer div:last-child{
+   /* color: white; */
+   transition: color 0.3s;
+ }
+
+.progress {
+  position: relative;
+}
+
+ /* progress bar */
+ .progress-bar {
+   /* background-color: var(--gold); */
+   background-color: rgba(239, 186, 33, 0.8);
+   z-index: 1;
+ }
+
+ .progress-bar[aria-valuenow^='(3[0-9]|[4-9][0-9]|100)'] {
+   background-color: var(--gold);
+ }
+
+ /* progress - completed state */
+ ul.progress-status {
+   list-style: none;
+   margin: 0;
+   padding: 0.25rem 0;
+   display: flex;
+   justify-content: space-between;
+ }
+
+ ul.progress-status  li.completed {
+   background-color: var(--gold);
+   border-radius: 12px;
+   padding: 0 6px;
+   font-weight: bold;
+ }
+
+ ul.progress-status  li.completed span {
+   position: inline-block;
+   vertical-align: middle;
+   font-size: large;
+ }
+
+ ul.progress-status  li.pending {
+   background-color: var(--lightgray);
+   border-radius: 12px;
+   padding: 0 6px;
+   font-weight: bold;
+}
+
+ /* https://www.30secondsofcode.org/css/s/circular-progress-bar/ */
+ .circular-progress .plan { font-size: 22pt; font-weight: bold;}
+ .circular-progress .percent { font-size: 9pt;}
+
+ .circular-progress {
+   --size: 100px;
+   --half-size: calc(var(--size) / 2);
+   --stroke-width: 10px;
+   --radius: calc((var(--size) - var(--stroke-width)) / 2);
+   --circumference: calc(var(--radius) * pi * 2);
+   --dash: calc((var(--progress) * var(--circumference)) / 100);
+ }
+
+ .circular-progress circle {
+   cx: var(--half-size);
+   cy: var(--half-size);
+   r: var(--radius);
+   stroke-width: var(--stroke-width);
+   fill: none;
+   stroke-linecap: round;
+ }
+
+ .circular-progress circle.bg {
+   fill: #efefef;
+ }
+
+ .circular-progress circle.gold {
+   fill: var(--gold);
+ }
+
+ .circular-progress circle.gray {
+   /* fill: #efefef; */
+   /* fill: #595757; */
+   fill: #ddd;
+ }
+
+ .circular-progress circle.bg {
+   stroke: #ddd;
+ }
+
+ .circular-progress circle.fg {
+   transform: rotate(-90deg);
+   transform-origin: var(--half-size) var(--half-size);
+   stroke-dasharray: var(--dash) calc(var(--circumference) - var(--dash));
+   transition: stroke-dasharray 0.3s linear 0s;
+   stroke: var(--gold);
+ }
+
+ #maincontainer .container {
+   width: 100%;
+   overflow-x: auto;
+   /* -ms-overflow-style: none; */
+   /* scrollbar-width: none; */
+ }
+
+/*
+ .progress-circle-collection {
+   overflow-x: auto;
+   display: inline-flex;
+   gap: 1rem;
+   .container::-webkit-scrollbar {
+      display: none;
+   }
+ }
+*/
+
+ .chapters {
+   column-count: 2
+ }
+
+ .chapters ul {
+   list-style: none;
+ }
+
+ .chapters ul a {
+   color: #333;
+ }
+
+ .chapters ul li {
+   margin-bottom: 1rem;
+ }
+
+ .chapters ul li:hover {
+   text-decoration: underline;
+   color: var(--red);
+ }
+
+ .chapters ul li::before{
+   display: inline-block;
+   vertical-align: middle;
+   width: 20px;
+   height: 20px;
+   position: relative;
+   right: 10px;
+   content: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" width="100%" height="100%"><path d="M0 0 20 0 20 20 0 20 z" stroke="none" fill="none" stroke-linejoin="round" stroke-width="1"/><text fill="white" x="50%" y="50%" dominant-baseline="middle" text-anchor="middle"></text></svg>');
+   outline: 1px outset;
+   outline-color: #ddd;
+   border-radius: 2px;
+ }
+
+ .chapters ul li.checked::before{
+   content: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" width="100%" height="100%"><path d="M0 0 20 0 20 20 0 20 z" stroke="gold" fill="gold" stroke-linejoin="round" stroke-width="1"/><text fill="black" x="50%" y="60%" dominant-baseline="middle" text-anchor="middle">✓</text></svg>');
+   outline-color: var(--gold);
+ }
+
+ .chapters ul li::after{
+   display: inline-block;
+   text-align: center;
+   vertical-align: middle;
+   width: 28px;
+   height: 28px;
+   font-size: xx-large;
+   /* border: 1px solid black; */
+   content: ">";
+   float: right;
+   position: relative;
+   right: 10px;
+   border-radius: 4px;
+   /* color: transparent; */
+   /* background-color: #eee; */
+   /* border: 1px solid #595757; */
+   transform: scale(.5, 1);
+   font-weight: bold;
+ }
+
+ /* https://nolanlawson.com/2019/02/10/building-a-modern-carousel-with-css-scroll-snap-smooth-scrolling-and-pinch-zoom/ */
+ /* https://codepen.io/nolanlawson/pen/ErQqbz?editors=1100 */
+ :root {
+   --carousel-width: 100%;
+   --carousel-height: 130px;
+   --carousel-padding: 0rem;
+ }
+
+ /*
+ @media (max-width: 479px) {
+   :root {
+     --carousel-width: 95vw;
+   }
+ }
+ */
+
+ .viewport {
+   width: 100%;
+   margin: 0 auto;
+   display: flex;
+   flex-direction: column;
+   align-items: center;
+ }
+
+ .carousel-frame {
+   /* background: #fafafa; */
+   padding: 10px;
+   border-radius: 3px;
+   /* border: 1px solid #ddd; */
+   width: calc(var(--carousel-width) + (2 * var(--carousel-padding)));
+   height: calc(var(--carousel-height) + (2 * var(--carousel-padding)));
+ }
+
+ .carousel {
+   width: var(--carousel-width);
+   height: var(--carousel-height);
+ }
+
+ .scroll {
+   display: flex;
+   align-items: center;
+   justify-content: space-between;
+   overflow-x: auto;
+   overflow-y: hidden;
+   width: 100%;
+   height: 100%;
+   -webkit-overflow-scrolling: touch;
+   justify-content: safe;
+ }
+
+ ul.scroll {
+   margin: 0;
+   padding: 4px 4px;
+   list-style: none;
+   gap: 1rem;
+ }
+
+ .scroll-item-outer {
+   /* width: 100%; */
+   height: 100%
+ }
+
+  .scroll-item-outer.selected a .scroll-item,
+  .scroll-item-outer.selected .scroll-item{
+   outline: 4px solid var(--gray);
+   border-radius: 50%;
+ }
+
+ .scroll-item {
+   /* width: var(--carousel-width); */
+   /* height: 100%; */
+ }
+
+ img {
+   object-fit: contain;
+   width: 100%;
+   height: 100%;
+ }
+
+ @supports (scroll-snap-align: start) {
+   /* modern scroll snap points */
+   .scroll {
+     scroll-snap-type: x mandatory;
+   }
+   .scroll-item-outer {
+     scroll-snap-align: center;
+   }
+ }
+
+ @supports not (scroll-snap-align: start) {
+   /* old scroll snap points spec */
+   .scroll {
+     -webkit-scroll-snap-type: mandatory;
+             scroll-snap-type: mandatory;
+     -webkit-scroll-snap-destination: 0 50%;
+             scroll-snap-destination: 0 50%;
+     -webkit-scroll-snap-points-x: repeat(100%);
+             scroll-snap-points-x: repeat(100%);
+   }
+
+   .scroll-item-outer {
+     scroll-snap-coordinate: 0 0;
+   }
+ }
+
+ @media screen and (min-width: 800px) {
+   .mobile-only {
+     display: none;
+   }
+ }
+
+ @media screen and (max-width: 799px) {
+   .desktop-only {
+     display: none;
+   }
+
+   .biblereader .heading {
+     font-size: 5rem;
+   }
+
+   .toggleContainer {
+     font-size: large;
+   }
+
+   /* toggle - hide  */
+   .toggleCheckbox:checked ~ .chapters ul#ot {
+     display: none;
+   }
+
+   .toggleCheckbox:checked ~ .chapters ul#nt {
+     display: block;
+   }
+
+   .toggleCheckbox:not(:checked) ~ .chapters ul#ot {
+     display: block;
+   }
+
+   .toggleCheckbox:not(:checked) ~ .chapters ul#nt {
+     display: none;
+   }
+
+   .chapters {
+     column-count: 1
+   }
+
+ }
+</style>
+
+<div class="biblereader">
+
+  <div class="heading">{{#str}} dashboard, biblereader {{/str}}</div>
+
+  <div class="instructions">{{#str}} instructions, biblereader {{/str}}</div>
+
+  <ul class="progress-status">
+    {{#progress_completed_label}}
+    <li class="completed"><span>✓</span> {{ progress_completed_label }}</li>
+    {{/progress_completed_label}}
+    {{#progress_pending_label}}
+    <li class="pending">{{ progress_pending_label }}</li>
+    {{/progress_pending_label}}
+  </ul>
+
+  <div class="progress">
+    <div style="position: absolute; top: 0; left: 0%;background-color: #666;height: 20px;width: 30%;"></div>
+    <div class="progress-bar" role="progressbar" style="width: {{ progress_overall }}%" aria-valuenow="{{ progress_overall }}" aria-valuemin="0" aria-valuemax="100"></div>
+    <div style="position: absolute; top: 7px; left: calc(30% - 100px);height: 20px;color: white;z-index: 2;">{{#str}} minimum, biblereader {{/str}}</div>
+  </div>
+
+  <div class="viewport">
+    <div class="carousel-frame">
+      <div class="carousel">
+        <ul class="scroll">
+          {{#plans}}
+          <li id="select-plan-{{ plan }}" data-plan="{{ plan }}" class="select-plan scroll-item-outer {{#selected}} selected {{/selected}}">
+            <a class="{{#available}}available{{/available}}" href="#">
+              <div class="scroll-item">
+                  <!-- https://www.30secondsofcode.org/css/s/circular-progress-bar/ -->
+                  <svg
+                    width="100" height="100" viewBox="0 0 100 100"
+                    class="circular-progress" style="--progress: {{ completed }}">
+                    <circle class="bg {{ color }}"></circle>
+                    {{#dial}}
+                    <circle class="fg"></circle>
+                    {{/dial}}
+                     <text x="50%" y="45%" dominant-baseline="middle" text-anchor="middle" class="plan">{{ plan }}</text>
+                     <text x="50%" y="72%" text-anchor="middle" class="percent">{{ label }}</text>
+                  </svg>
+              </div>
+            </a>
+          </li>
+          {{/plans}}
+        </ul>
+      </div>
+    </div>
+  </div>
+  <br><br>
+
+  <!-- https://codepen.io/nubianlachlan-the-encoder/pen/GRvVyYN -->
+  <input type="checkbox" id="toggle" class="toggleCheckbox"/>
+  <label for="toggle" class='toggleContainer mobile-only'>
+    {{#testament_progress}}
+      {{#ot}}
+        <div>{{#str}} old_testament, biblereader {{/str}} {{#visible}}<span>{{ completed }} / {{ total }}</span>{{/visible}}</div>
+      {{/ot}}
+      {{#nt}}
+        <div>{{#str}} new_testament, biblereader {{/str}} {{#visible}}<span>{{ completed }} / {{ total }}</span>{{/visible}}</div>
+      {{/nt}}
+    {{/testament_progress}}
+  </label>
+
+  <!-- &#9989; &#x2705; -->
+  {{#passages}}
+  <div id="passages-plan-{{ plan }}" data-plan="{{ plan }}" class="passages-plan chapters" {{#hidden}} style="display: none;"{{/hidden}} {{#visible}} style="display: block;"{{/visible}}>
+    <ul id="ot">
+      {{#ot}}
+      <a href="reading.php?id={{ id }}&pageid={{ pageid }}&ref={{ passage }}"><li {{#checked}}class="checked"{{/checked}}>{{ passage }}</li></a>
+      {{/ot}}
+    </ul>
+    <ul id="nt">
+      {{#nt}}
+      <a href="reading.php?id={{ id }}&pageid={{ pageid }}&ref={{ passage }}"><li {{#checked}}class="checked"{{/checked}}>{{ passage }}</li></a>
+      {{/nt}}
+    </ul>
+  </div>
+  {{/passages}}
+
+</div>
+
+
+<script>
+  /* event listener */
+  var item_collection = document.querySelectorAll('.select-plan a.available');
+  item_collection.forEach(function(item) {
+   item.addEventListener("click", selectedCircle );
+  });
+
+  /* event function */
+  function selectedCircle() {
+    // plans
+    var item_collection = document.querySelectorAll('.select-plan');
+    item_collection.forEach(function(item){item.classList.remove('selected')});
+    this.parentElement.classList.add('selected');
+
+    // passages
+    var plan = this.parentElement.dataset.plan;
+    var chapter_collection = document.querySelectorAll('.passages-plan');
+    chapter_collection.forEach(function(item){
+      if(item.dataset.plan == plan)
+        item.style.display = "block";
+      else
+        item.style.display = "none";
+    });
+  }
+
+  document.querySelector('.select-plan.selected').scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' });
+</script>
+
+<!-- /mod_biblereader/planner -->

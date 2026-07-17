@@ -1,0 +1,329 @@
+{{!
+    This file is part of Moodle - https://moodle.org/
+
+    Moodle is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    Moodle is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
+}}
+{{!
+    @template plugintype_pluginname/template_name
+
+    Template purpose and description.
+
+    Classes required for JS:
+    * none
+
+    Data attributes required for JS:
+    * none
+
+    Context variables required for this template:
+    * none
+
+    Example context (json):
+    {
+    }
+}}
+
+<!-- mod_biblereader/biblereader -->
+<style>
+
+  #page {
+    overflow-y: scroll !important;
+  }
+
+  hr {
+    width: 100%;
+  }
+
+  .secondary-navigation {
+    display: none;
+  }
+
+  .biblereader .chapter {
+    margin: 0;
+    position: relative;
+    top: 4px;
+  }
+
+  .biblereader .passage p {
+    margin-bottom: 1.25em;
+  }
+
+  .biblereader .footer {
+    display: flex;
+  }
+
+  .biblereader .footer #status_{{uniqid}} {
+    line-height: 12pt;
+    font-weight: bold;
+    margin-right: 2rem;
+  }
+
+  .biblereader .header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-end;
+  }
+
+  .hidden {
+    display: none !important;
+  }
+
+  /* css for regular screens */
+  @media screen and (min-width: 800px) {
+    body {
+      background-color: rgb(220,220,220);
+    }
+    
+    #page {
+      /* overflow: scroll; */
+      /* background-color: rgb(220,220,220); */
+    }
+    
+    #maincontainer.container.outercont {
+      background-color: #eee;
+      border-left: 1px solid rgba(0, 0, 0, 0.15);
+      border-right: 1px solid rgba(0, 0, 0, 0.15);
+    }
+
+    #region-main {
+      padding-top: 2rem;
+    }
+
+    .breadcrumb {
+      background-color: inherit !important;
+    }
+
+    .biblereader .header {
+      margin-bottom: 2rem;
+    }
+
+    .biblereader .chapter {
+      display: inline;
+      margin-right: 1rem;
+    }
+    
+    .biblereader .passage {
+      /* height: 15vh; */
+      /* height: 101%; */
+      /* overflow-y: scroll; */
+      min-height: 75vh;
+    }
+    
+    .biblereader .reading {
+      /* margin-bottom: 6rem; */
+    }
+    
+    .biblereader .reading .control.left {
+      float: left;
+      position: sticky;
+      top: 50%;
+      height: 0;
+    }
+    
+    .biblereader .reading .control.right {
+      float: right;
+      position: sticky;
+      top: 50%;
+      height: 0;
+    }
+    
+    .biblereader .reading .control .btn {
+      position: relative;
+      padding: 20px 10px;
+    }
+    .biblereader .reading .control.left .btn {
+      left: -45px;
+    }
+    .biblereader .reading .control.right .btn {
+      left: 45px;
+    }
+    .biblereader .back {
+      margin-bottom: 2rem;
+    }
+
+    .biblereader .passage {
+      font-size: 14pt;
+      line-height: 2em;
+      transition: all 0.75s ease;
+    }
+
+    .mobile-only {
+      display: none;
+    }
+  }
+
+
+  /* css for small screens */
+  @media screen and (max-width: 799px) {
+    #region-main-box {
+      padding-left: 25px;
+      padding-right: 25px;
+    }
+
+    .biblereader {
+      display: flex;
+      flex-direction: column-reverse;
+    }
+
+    .biblereader .header {
+      order: 1;
+    }
+
+    .biblereader .footer {
+      justify-content: space-between;
+    }
+
+    #passage_options_{{uniqid}} {
+      position: absolute;
+      width: 210px;
+      /* height: 50vh; */
+      height: 200px;
+      background-color: rgba(255, 255, 255, 0.85);
+      right: 0;
+      top: 60px;
+      outline: 3px solid #777;
+      padding: 1rem;
+      border-radius: 6px 0 0 6px;
+      text-align: center;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+    }
+
+    label[for=range] {
+      width: min-content;
+      height: min-content;
+      text-align: center;
+    }
+
+    input#range_{{uniqid}} {
+      width: 100%;
+      height: 50px;
+    }
+
+    input[type="range"] {
+      writing-mode: vertical-lr;
+      appearance: slider-vertical;
+    }
+
+    .reading {
+      /* height: calc( 100vh - 220px); */
+      /* overflow-y: scroll; */
+    }
+    
+    .biblereader .passage {
+      min-height: 100vh;
+    }
+
+    .desktop-only {
+      display: none;
+    }
+  }
+
+</style>
+
+<div class="biblereader">
+
+  <div class="desktop-only">
+    <a class="btn btn-secondary back" href="view.php?id={{ planner_href }}">↵ {{#str}} back, biblereader {{/str}}</a>
+    <h1>{{#str}} modulename, biblereader {{/str}}</h1>
+  </div>
+
+  <div class="footer">
+    <div id="status_{{uniqid}}">{{#str}} next_passage, biblereader {{/str}}<br>
+      <small>{{#str}} passage, biblereader {{/str}} {{ passage_index }} {{#str}} passage_of, biblereader {{/str}} {{ passage_length }}</small>
+    </div>
+    <div>
+      {{#prev_book_chapter}}<a class="btn btn-light" {{#prev_chapter_href}}href="{{prev_chapter_href}}"{{/prev_chapter_href}}>← {{ prev_book_chapter }}</a>{{/prev_book_chapter}}
+      <a class="btn btn-secondary" {{#next_chapter_href}}href="{{next_chapter_href}}"{{/next_chapter_href}}>{{ next_book_chapter }} →</a>
+    </div>
+  </div>
+
+  <hr>
+
+  <div class="header">
+    <a class="btn btn-light back mobile-only" href="view.php?id={{ planner_href }}">↰ {{#str}} back, biblereader {{/str}}</a>
+    <div>
+      <h2 class="chapter inline">{{ book_chapter }}</h2>
+      <select id="translations_{{uniqid}}" class="btn btn-light" data-action="mod_biblereader/biblereader-changeTranslation" autocomplete="off">
+        {{# translations }}
+          <option title="{{ description }}" value="{{ version }}" {{# selected }} selected{{/ selected }}>{{ description }}</option>
+        {{/ translations }}
+      </select>
+    </div>
+
+    <div>
+      <button class="btn btn-light" data-action="mod_biblereader/biblereader-togglePassageOptions">{{#str}} passage_options, biblereader {{/str}}</button>
+      <div id="passage_options_{{uniqid}}" class="hidden">
+        {{#prefs}}
+        <div>
+          <!-- TODO: https://codepen.io/dromo77/pen/gOOogBE  -->
+          <label for="range">
+            <large>Aa </large>
+            <input type="range" id="range_{{uniqid}}" min="10" max="30" value="{{font-size}}" step="1" data-action="mod_biblereader/biblereader-updateRange"  autocomplete="off">
+            <output for="range" id="pointSize_{{uniqid}}"> {{font-size}} {{#str}} points, biblereader {{/str}} </output>
+          </label>
+        </div>
+        {{/prefs}}
+        {{^prefs}}
+        <div>
+          <!-- TODO: https://codepen.io/dromo77/pen/gOOogBE  -->
+          <label for="range">
+            <large>Aa </large>
+            <input type="range" id="range_{{uniqid}}" min="10" max="30" value="14" step="1" data-action="mod_biblereader/biblereader-updateRange"  autocomplete="off">
+            <output for="range" id="pointSize_{{uniqid}}"> 12 {{#str}} points, biblereader {{/str}} </output>
+          </label>
+        </div>
+        {{/prefs}}
+        <div>
+          <button class="btn btn-light" data-action="mod_biblereader/biblereader-togglePassageOptions">{{#str}} close, biblereader {{/str}}</button>
+          <button class="btn btn-light" data-action="mod_biblereader/biblereader-savePassageOptions">{{#str}} save_changes, biblereader {{/str}}</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div id="reading_{{uniqid}}" class="reading">
+
+    <div class="control left desktop-only">
+      <a class="btn btn-light" {{#prev_chapter_href}}href="{{prev_chapter_href}}"{{/prev_chapter_href}}><div>←</div></a>
+    </div>
+
+    <div class="control right desktop-only">
+      <a class="btn btn-light" {{#next_chapter_href}}href="{{next_chapter_href}}"{{/next_chapter_href}}><div>→</div></a>
+    </div>
+
+    <div id="passage_{{uniqid}}" class="passage">
+      {{# passage }}
+        {{#error}}<p>{{{error}}}</p>{{/error}}
+        <p>{{ verse }}</p>
+      {{/ passage }}
+    </div>
+  </div>
+  <a class="btn btn-secondary back desktop-only" href="view.php?id={{ planner_href }}">↵ {{#str}} back, biblereader {{/str}}</a>
+  <hr class="mobile-only">
+</div>
+
+<!--
+<div id="mod_biblereader-biblereader-wrapper-{{uniqid}}">
+    <h1>Unique ID: {{uniqid}}</h1>
+</div>
+-->
+
+{{#js}}
+require(['mod_biblereader/biblereader'], function(Biblereader) {
+    // Biblereader.init(document.querySelector('#mod_biblereader-biblereader-wrapper-{{uniqid}}'));
+    Biblereader.init('{{uniqid}}');
+});
+{{/js}}
+<!-- /mod_biblereader/biblereader -->
