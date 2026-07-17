@@ -273,7 +273,7 @@ class planner {
      // DEBUG: course completions
      # echo '<pre>'; print_r($data); echo '</pre>';
 
-     $unlocked = 1; $sum = 1;
+     $unlocked = 0; $sum = 0;
      foreach($data as $course)
          foreach($course as $activity){
              if($activity == 1)
