@@ -273,6 +273,7 @@ class planner {
      // DEBUG: course completions
      # echo '<pre>'; print_r($data); echo '</pre>';
 
+     // JJ 7/20/2026: changed minimum values from 0 to 1 to avoid DIV by 0
      $unlocked = 1; $sum = 1;
      foreach($data as $course)
          foreach($course as $activity){
